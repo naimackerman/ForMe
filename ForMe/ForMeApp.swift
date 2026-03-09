@@ -2,7 +2,7 @@
 //  ForMeApp.swift
 //  ForMe
 //
-//  Created by Nur Ahmad Khatim on 09/03/26.
+//  Menu bar app — single popup with inline task/calendar toggle.
 //
 
 import SwiftUI
@@ -10,23 +10,29 @@ import SwiftData
 
 @main
 struct ForMeApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([TaskItem.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: schema, configurations: [config])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
 
+    @State private var prayerTimeManager = PrayerTimeManager()
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra("ForMe", systemImage: "moon.fill") {
+            FloatingIslandView()
+                .environment(prayerTimeManager)
+                .modelContainer(sharedModelContainer)
         }
-        .modelContainer(sharedModelContainer)
+        .menuBarExtraStyle(.window)
+
+        Settings {
+            Text("ForMe Settings").padding()
+        }
     }
 }
